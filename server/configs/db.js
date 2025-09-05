@@ -1,5 +1,8 @@
 import mongoose from "mongoose";
 
+// Disable mongoose buffering globally
+mongoose.set('bufferCommands', false);
+
 let isConnected = false;
 
 const connectDB = async() => {
@@ -24,8 +27,6 @@ const connectDB = async() => {
             maxPoolSize: 1, // Single connection for serverless
             minPoolSize: 0,
             maxIdleTimeMS: 10000, // Close connections after 10 seconds of inactivity
-            bufferCommands: false, // Disable mongoose buffering
-            bufferMaxEntries: 0, // Disable mongoose buffering
         });
         
         isConnected = true;
