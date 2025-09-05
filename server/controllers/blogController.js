@@ -57,7 +57,17 @@ export const getAllBlogs = async (req,res) =>{
         console.log("Starting getAllBlogs...");
         console.log("MongoDB connection state:", mongoose.connection.readyState);
         
-        const blogs = await Blog.find({isPublished: true}).maxTimeMS(5000);
+        // Ensure connection is established
+        if (mongoose.connection.readyState !== 1) {
+            console.log("Database not connected, attempting to connect...");
+            const connectDB = (await import('../configs/db.js')).default;
+            await connectDB();
+        }
+        
+        const blogs = await Blog.find({isPublished: true})
+            .maxTimeMS(3000) // 3 second timeout
+            .lean(); // Use lean() for better performance
+        
         console.log("Found blogs:", blogs.length);
         
         res.json({success : true ,blogs})

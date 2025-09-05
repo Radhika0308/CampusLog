@@ -1,40 +1,41 @@
 import mongoose from "mongoose";
 
-
 let isConnected = false;
 
 const connectDB = async() => {
-    if (isConnected) {
+    if (isConnected && mongoose.connection.readyState === 1) {
         console.log("Database already connected");
         return;
     }
 
     try{
-        mongoose.connection.on('connected',()=> {
-            console.log("Database connected");
-            isConnected = true;
-        });
-        
-        mongoose.connection.on('disconnected',()=> {
-            console.log("Database disconnected");
-            isConnected = false;
-        });
+        // Close existing connection if any
+        if (mongoose.connection.readyState !== 0) {
+            await mongoose.disconnect();
+        }
 
+        console.log("Connecting to MongoDB...");
+        
         await mongoose.connect(process.env.MONGODB_URI, {
             dbName: 'CampusLog',
-            serverSelectionTimeoutMS: 10000, // 10 seconds
-            socketTimeoutMS: 45000,
-            maxPoolSize: 10, // Maintain up to 10 socket connections
-            serverApi: {
-                version: '1',
-                strict: true,
-                deprecationErrors: true,
-            }
+            serverSelectionTimeoutMS: 5000, // 5 seconds
+            socketTimeoutMS: 30000, // 30 seconds
+            connectTimeoutMS: 5000, // 5 seconds
+            maxPoolSize: 1, // Single connection for serverless
+            minPoolSize: 0,
+            maxIdleTimeMS: 10000, // Close connections after 10 seconds of inactivity
+            bufferCommands: false, // Disable mongoose buffering
+            bufferMaxEntries: 0, // Disable mongoose buffering
         });
+        
+        isConnected = true;
+        console.log("Database connected successfully");
+        
     } catch(error){
       console.log("Database connection error:", error.message);
+      isConnected = false;
+      throw error;
     }
 }
-
 
 export default connectDB;

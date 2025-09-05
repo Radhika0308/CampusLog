@@ -32,6 +32,14 @@ app.get('/test-db', async (req, res) => {
     res.json({ success: false, message: error.message });
   }
 });
+
+app.get('/test-simple', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: "Simple test endpoint working",
+    timestamp: new Date().toISOString()
+  });
+});
 app.use('/api/admin', adminRouter)
 app.use('/api/blog', blogRouter)
 
