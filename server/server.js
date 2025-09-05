@@ -14,6 +14,24 @@ app.use(express.json());
 
 // Routes
 app.get('/', (req, res) => res.send("API IS WORKING"));
+app.get('/test-db', async (req, res) => {
+  try {
+    const connectionState = mongoose.connection.readyState;
+    res.json({ 
+      success: true, 
+      message: "Database test", 
+      connectionState: connectionState,
+      connectionStates: {
+        0: 'disconnected',
+        1: 'connected', 
+        2: 'connecting',
+        3: 'disconnecting'
+      }
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
 app.use('/api/admin', adminRouter)
 app.use('/api/blog', blogRouter)
 

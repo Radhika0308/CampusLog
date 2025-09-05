@@ -1,5 +1,6 @@
 
 import fs from 'fs'
+import mongoose from 'mongoose'
 import imagekit from '../configs/imageKit.js';
 import Blog from '../models/Blog.js';
 import Comment from '../models/Comment.js';
@@ -52,14 +53,18 @@ export const addBlog = async(req, res)=>{
 }
 
 export const getAllBlogs = async (req,res) =>{
-
     try{
-        const blogs = await Blog.find({isPublished: true})
-       res.json({success : true ,blogs})
+        console.log("Starting getAllBlogs...");
+        console.log("MongoDB connection state:", mongoose.connection.readyState);
+        
+        const blogs = await Blog.find({isPublished: true}).maxTimeMS(5000);
+        console.log("Found blogs:", blogs.length);
+        
+        res.json({success : true ,blogs})
     } catch(error){
+        console.log("Error in getAllBlogs:", error.message);
         res.json({success : false, message : error.message})
     }
-
 }
 
 export const getBlogById = async(req,res)  => {
